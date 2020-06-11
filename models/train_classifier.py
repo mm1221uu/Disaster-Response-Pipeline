@@ -134,9 +134,9 @@ def evaluate_model(model, X_test, Y_test, category_names):
     multi_f1 = output_fscore(Y_test,Y_pred, beta = 1)
     overall_accuracy = (Y_pred == Y_test).mean().mean()
     for column in Y_test.columns:
-        print('------------------------------------------------------\n')
-        print('FEATURE: {}\n'.format(column))
-        print(classification_report(Y_test[column],y_pred_pd[column]))
+       #print('------------------------------------------------------\n')
+        print(column,classification_report(Y_test[column],y_pred_pd[column]))
+
 
     print('------------------------------------------------------\n')
     print('Average overall accuracy {0:.2f}%'.format(overall_accuracy*100))
