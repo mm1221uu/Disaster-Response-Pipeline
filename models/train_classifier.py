@@ -1,3 +1,16 @@
+"""
+TRAIN CLASSIFIER
+Disaster Resoponse Project
+
+Sample Script Execution:
+> python models/train_classifier.py data/DisasterResponse.db models/classifier.pkl
+
+Arguments:
+    1) SQLite db path (containing pre-processed data)
+    2) pickle file name to save ML model
+"""
+
+# import libraries
 import sys
 import pandas as pd
 import numpy as np
@@ -19,6 +32,16 @@ from sklearn.metrics import make_scorer, accuracy_score, f1_score, fbeta_score, 
 from scipy.stats.mstats import gmean
 
 def load_data(database_filepath):
+    """
+    Load Data Function
+
+    Arguments:
+        database_filepath -> path to SQLite db
+    Output:
+        X -> feature DataFrame
+        Y -> label DataFrame
+        category_names -> used for data visualization (app)
+    """
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('df',engine)
     X = df['message']
@@ -28,6 +51,14 @@ def load_data(database_filepath):
 
 
 def tokenize(text):
+    """
+    Tokenize function
+
+    Arguments:
+        text -> list of text messages (english)
+    Output:
+        clean_tokens -> tokenized text, clean for ML modeling
+    """
     url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
@@ -45,6 +76,13 @@ def tokenize(text):
 
 
 def build_model():
+    """
+    Build Model function
+
+    This function output is a Scikit ML Pipeline that process text messages
+    and apply a classifier.
+
+    """
     model = pipeline = Pipeline([
             ('vect', CountVectorizer(tokenizer=tokenize)),
             ('tfidf', TfidfTransformer()),
@@ -54,7 +92,17 @@ def build_model():
     return model
 
 def output_fscore(y_true,y_pred,beta=1):
+    """
+    This functionis a performance metric
 
+    Arguments:
+        y_true -> labels
+        y_prod -> predictions
+        beta -> beta value of fscore metric
+
+    Output:
+        f1score -> customized fscore
+    """
     score_list = []
     if isinstance(y_pred, pd.DataFrame) == True:
         y_pred = y_pred.values
@@ -70,16 +118,40 @@ def output_fscore(y_true,y_pred,beta=1):
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    """
+    This function applies ML pipeline to a test set and prints out
+    model performance (accuracy and f1score), and the whole classification report
+
+    Arguments:
+        model -> Scikit ML Pipeline
+        X_test -> test features
+        Y_test -> test labels
+        category_names -> label names (multi-output)
+    """
     Y_pred = model.predict(X_test)
-    
+    y_pred_pd = pd.DataFrame(Y_pred, columns = Y_test.columns)
+
     multi_f1 = output_fscore(Y_test,Y_pred, beta = 1)
     overall_accuracy = (Y_pred == Y_test).mean().mean()
+    for column in Y_test.columns:
+        print('------------------------------------------------------\n')
+        print('FEATURE: {}\n'.format(column))
+        print(classification_report(Y_test[column],y_pred_pd[column]))
 
-    print('Average overall accuracy {0:.2f}% \n'.format(overall_accuracy*100))
+    print('------------------------------------------------------\n')
+    print('Average overall accuracy {0:.2f}%'.format(overall_accuracy*100))
     print('F1 score (custom definition) {0:.2f}%\n'.format(multi_f1*100))
-
+    print('------------------------------------------------------\n')
 
 def save_model(model, model_filepath):
+    """
+    This function saves trained model as Pickle file, to be loaded later.
+
+    Arguments:
+        model -> GridSearchCV or Scikit Pipelin object
+        model_filepath -> destination path to save .pkl file
+
+    """
     filename = model_filepath
     pickle.dump(model, open(filename, 'wb'))
     pass
@@ -91,13 +163,13 @@ def main():
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
         X, Y, category_names = load_data(database_filepath)
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2)
-        
+
         print('Building model...')
         model = build_model()
-        
+
         print('Training model...')
         model.fit(X_train, Y_train)
-        
+
         print('Evaluating model...')
         evaluate_model(model, X_test, Y_test, category_names)
 
