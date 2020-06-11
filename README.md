@@ -62,9 +62,9 @@ git clone https://github.com/mohdaj/Disaster-Response-Pipeline.git
 
 1. **The main page shows some graphs about training dataset, provided by Figure Eight**
 
-   ![Graph1](screenshots/1.jpg)
+   ![Graph1](screenshots/1.JPG)
 
-   ![Graph2](screenshots/2.jpg)
+   ![Graph2](screenshots/2.JPG)
 
 2. **This is an example of a message you can type to test Machine Learning model performance**
 
@@ -72,7 +72,7 @@ git clone https://github.com/mohdaj/Disaster-Response-Pipeline.git
 
 2. **After clicking `Classify Message`, you can see the categories which the message belongs to highlighted in green***
 
-![Sample Output](screenshots/3.jpg)
+![Sample Output](screenshots/3.JPG)
 
-![Sample Output1](screenshots/3.1.jpg)
+![Sample Output1](screenshots/3.1.JPG)
 
